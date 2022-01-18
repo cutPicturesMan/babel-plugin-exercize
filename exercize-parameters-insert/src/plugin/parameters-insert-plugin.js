@@ -10,7 +10,7 @@ const parametersInsertPlugin = ({ types, template }, options, dirname) => {
                     return;
                 }
                 const calleeName = path.get('callee').toString();
-                 if (targetCalleeName.includes(calleeName)) {
+                if (targetCalleeName.includes(calleeName)) {
                     const { line, column } = path.node.loc.start;
                     const newNode = template.expression(`console.log("${state.filename || 'unkown filename'}: (${line}, ${column})")`)();
                     newNode.isNew = true;
