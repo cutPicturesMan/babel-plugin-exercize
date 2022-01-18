@@ -18,12 +18,8 @@ const ast = parser.parse(code, {
 
 traverse(ast, {
     CallExpression (path) {
-        console.log('---');
-        console.log(path.node.callee);
         const callee = path.get('callee');
-        if () {
 
-        }
-        // console.log(path.callee.object.name);
+        console.log(callee);
     }
 })

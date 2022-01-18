@@ -2,14 +2,15 @@ const { declare } = require('@babel/helper-plugin-utils');
 
 const targetCalleeName = ['log', 'info', 'error', 'debug'].map(item => `console.${item}`);
 
-const parametersInsertPlugin = ({ types, template }, options, dirname) => {
+const parametersInsertPlugin = ({ types, template, generator }, options, dirname) => {
     return {
         visitor: {
             CallExpression(path, state) {
                 if (path.node.isNew) {
                     return;
                 }
-                const calleeName = path.get('callee').toString();
+                // const calleeName = path.get('callee').toString();
+							  const calleeName = generator(path.node.callee).code;
                 if (targetCalleeName.includes(calleeName)) {
                     const { line, column } = path.node.loc.start;
                     const newNode = template.expression(`console.log("${state.filename || 'unkown filename'}: (${line}, ${column})")`)();
