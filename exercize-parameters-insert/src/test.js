@@ -9,17 +9,35 @@ const path = require("path");
 const code = fs.readFileSync(path.resolve(__dirname, './sourceCode.js'), {
     encoding: 'utf-8'
 });
-console.log(code);
+
+const consoleName = ["log", "info", "debug", "error"].map(item => `console.${item}`);
 
 const ast = parser.parse(code, {
-    sourceType: "module",
+    sourceType: "unambiguous",
     plugins: ["jsx"]
 });
 
 traverse(ast, {
     CallExpression (path) {
-        const callee = path.get('callee');
+        if (path.node.isNew) {
+            return;
+        }
 
-        console.log(callee);
+        const callee = path.get('callee');
+        const calleeName = callee.toString();
+
+        if (consoleName.includes(calleeName)) {
+            let newNode = template.expression(`console.log("${__filename}", ${path.node.start}, ${path.node.end})`)();
+            newNode.isNew = true;
+
+            if (path.findParent((path) => path.isJSXElement())) {
+                path.replaceWith(t.arrayExpression([newNode, path.node]))
+                path.skip();
+            } else {
+                path.insertBefore(newNode)
+            }
+        }
     }
 })
+
+console.log(generate(ast).code);
